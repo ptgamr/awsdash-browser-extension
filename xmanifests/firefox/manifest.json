@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "AwsDash",
-  "version": "1.0.3",
+  "version": "REFER_TO_MAKEFILE",
   "description": "Companion extension for AwsDash.com",
   "icons": {
     "16": "awsdash-logo.png",
