@@ -26,38 +26,45 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Handle AWS credentials
-  const saveButton = document.getElementById("save-button");
   const awsKeyInput = document.getElementById("aws-key") as HTMLInputElement;
   const awsSecretInput = document.getElementById(
     "aws-secret"
   ) as HTMLInputElement;
   const feedbackElement = document.createElement("p");
   feedbackElement.className = "text-green-500 mt-2";
-  saveButton?.parentNode?.appendChild(feedbackElement);
+  awsSecretInput.parentNode?.appendChild(feedbackElement);
 
-  if (saveButton && awsKeyInput && awsSecretInput) {
-    saveButton.addEventListener("click", () => {
-      const accessKeyId = awsKeyInput.value || "";
-      const secretAccessKey = awsSecretInput.value || "";
+  let saveTimeout: number | null = null;
 
-      const awsCredentials = { accessKeyId, secretAccessKey };
-      chrome.storage.local.set({ awsCredentials }, () => {
-        const originalText = saveButton.textContent;
-        saveButton.textContent = "Saved!";
-        setTimeout(() => {
-          saveButton.textContent = originalText;
-        }, 2000);
-      });
+  const saveCredentials = () => {
+    const accessKeyId = awsKeyInput.value.trim();
+    const secretAccessKey = awsSecretInput.value.trim();
+
+    const awsCredentials = { accessKeyId, secretAccessKey };
+    chrome.storage.local.set({ awsCredentials }, () => {
+      feedbackElement.textContent = "Saved!";
+      setTimeout(() => {
+        feedbackElement.textContent = "";
+      }, 2000);
     });
+  };
+
+  const debounceSave = () => {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    saveTimeout = setTimeout(saveCredentials, 200) as unknown as number;
+  };
+
+  if (awsKeyInput && awsSecretInput) {
+    awsKeyInput.addEventListener("input", debounceSave);
+    awsSecretInput.addEventListener("input", debounceSave);
 
     // Load saved credentials
     chrome.storage.local.get(["awsCredentials"], (result) => {
-      if (
-        result.awsCredentials.accessKeyId &&
-        result.awsCredentials.secretAccessKey
-      ) {
-        awsKeyInput.value = result.awsCredentials.accessKeyId;
-        awsSecretInput.value = result.awsCredentials.secretAccessKey;
+      if (result.awsCredentials) {
+        awsKeyInput.value = result.awsCredentials.accessKeyId || "";
+        awsSecretInput.value = result.awsCredentials.secretAccessKey || "";
       }
     });
   }

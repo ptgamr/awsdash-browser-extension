@@ -1,4 +1,4 @@
-.PHONY: build chrome firefox
+.PHONY: build build-chrome build-firefox chrome firefox
 
 VERSION := 1.0.5
 
@@ -9,6 +9,8 @@ ifeq ($(UNAME_S),Darwin)
 else
     SED_INPLACE := sed -i
 endif
+
+build: build-chrome build-firefox
 
 build-chrome:
 	@npm run build:chrome
