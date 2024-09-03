@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "AwsDash",
+  "version": "1.0.3",
+  "description": "Companion extension for AwsDash.com",
+  "icons": {
+    "16": "awsdash-logo.png",
+    "48": "awsdash-logo.png",
+    "128": "awsdash-logo.png"
+  },
+  "action": {
+    "default_icon": "awsdash-logo.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:5173/*", "https://awsdash.com/*"],
+      "js": ["content-script.js"]
+    }
+  ]
+}

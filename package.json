@@ -1,0 +1,27 @@
+{
+  "name": "browser-extension",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:chrome": "vite build --config vite.config.chrome.ts",
+    "build:firefox": "vite build --config vite.config.firefox.ts",
+    "preview": "vite preview",
+    "watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.637.0",
+    "@tanstack/react-query-devtools": "^5.53.1",
+    "flexsearch": "^0.7.43",
+    "idb": "^8.0.0",
+    "localforage": "^1.10.0",
+    "nanoid": "^5.0.7",
+    "vite-plugin-static-copy": "^1.0.6"
+  }
+}
