@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "AwsDash",
-  "version": "REFER_TO_MAKEFILE",
+  "version": "1.0.0-dev",
   "description": "Companion extension for AwsDash.com",
   "icons": {
     "16": "awsdash-logo.png",
@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["http://localhost:5173/*", "https://awsdash.com/*"],
-      "js": ["content-script.js"]
+      "js": ["content-scripts/content-script.js"]
     }
   ],
   "browser_specific_settings": {

@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill";
 import {
   S3Client,
   ListBucketsCommand,
@@ -26,107 +27,113 @@ localForage.setDriver(localForage.INDEXEDDB);
 
 console.log("Background script loaded");
 
-browser.runtime.onMessage.addListener(
-  (request: ExtIncomingActions, _sender, sendResponse) => {
-    console.log("Background script received message:", request);
+browser.runtime.onMessage.addListener((rawMessage, _sender, sendResponse) => {
+  console.log("Background script received message:", rawMessage);
 
-    switch (request.type) {
-      case IN_MESSAGE_TYPES.PING:
-        sendResponse({ type: OUT_MESSAGE_TYPES.PONG });
-        return true;
+  const message = rawMessage as ExtIncomingActions;
 
-      case IN_MESSAGE_TYPES.LIST_EC2_INSTANCES:
-        listEc2Instances(request.region, request.instanceStateFilter)
-          .then((instances) => {
-            sendResponse({ instances });
-          })
-          .catch((error) => {
-            sendResponse({ error: error.message });
-          });
-        return true;
-      case IN_MESSAGE_TYPES.LIST_BUCKETS:
-        listBuckets()
-          .then((buckets) => {
-            console.log("Buckets listed:", buckets);
-            sendResponse({
-              type: OUT_MESSAGE_TYPES.LIST_BUCKETS_RESPONSE,
-              buckets: buckets,
-            });
-          })
-          .catch((error) => {
-            console.error("Error listing buckets:", error);
-            sendResponse({
-              type: OUT_MESSAGE_TYPES.LIST_BUCKETS_ERROR,
-              error: error.message,
-            });
-          });
-        return true;
+  switch (message.type) {
+    case IN_MESSAGE_TYPES.PING:
+      sendResponse({ type: OUT_MESSAGE_TYPES.PONG });
+      return true;
 
-      case IN_MESSAGE_TYPES.LIST_BUCKET_CONTENTS:
-        listBucketContents(
-          request.bucketName,
-          request.bucketRegion,
-          request.prefix
-        )
-          .then((contents) => {
-            console.log("Bucket contents listed:", contents);
-            sendResponse({
-              type: OUT_MESSAGE_TYPES.LIST_BUCKET_CONTENTS_RESPONSE,
-              contents: contents,
-            });
-          })
-          .catch((error) => {
-            console.error("Error listing bucket contents:", error);
-            sendResponse({
-              type: OUT_MESSAGE_TYPES.LIST_BUCKET_CONTENTS_ERROR,
-              error: error.message,
-            });
-          });
-        return true;
-
-      case IN_MESSAGE_TYPES.LIST_ALL_BUCKET_CONTENTS:
-        listAllBucketContents(request.bucketName, request.bucketRegion)
-          .then((contents) => {
-            sendResponse({ contents });
-          })
-          .catch((error) => {
-            sendResponse({ error: error.message });
-          });
-        return true;
-
-      case IN_MESSAGE_TYPES.LOAD_INDEX:
-        void requestBucketIndices(request.bucketNames);
-        sendResponse({ ok: true });
-        return true;
-
-      case IN_MESSAGE_TYPES.GET_BUCKET_SEARCH_RESULT:
-        getBucketSearchResult(request.bucketName, request.id).then((item) => {
-          sendResponse({ item: item || null });
+    case IN_MESSAGE_TYPES.LIST_EC2_INSTANCES:
+      listEc2Instances(message.region, message.instanceStateFilter)
+        .then((instances) => {
+          sendResponse({ instances });
+        })
+        .catch((error) => {
+          sendResponse({ error: error.message });
         });
-        return true;
-
-      case IN_MESSAGE_TYPES.START_INDEX_BUCKET:
-        void startIndexBucket({
-          name: request.bucketName,
-          location: request.bucketRegion,
+      return true;
+    case IN_MESSAGE_TYPES.LIST_BUCKETS:
+      listBuckets()
+        .then((buckets) => {
+          console.log("Buckets listed:", buckets);
+          sendResponse({
+            type: OUT_MESSAGE_TYPES.LIST_BUCKETS_RESPONSE,
+            buckets: buckets,
+          });
+        })
+        .catch((error) => {
+          console.error("Error listing buckets:", error);
+          sendResponse({
+            type: OUT_MESSAGE_TYPES.LIST_BUCKETS_ERROR,
+            error: error.message,
+          });
         });
-        return true;
+      return true;
 
-      case IN_MESSAGE_TYPES.STOP_INDEX_BUCKET:
-        stopIndexBucket(request.indexingProcess);
-        return true;
-    }
+    case IN_MESSAGE_TYPES.LIST_BUCKET_CONTENTS:
+      listBucketContents(
+        message.bucketName,
+        message.bucketRegion,
+        message.prefix,
+      )
+        .then((contents) => {
+          console.log("Bucket contents listed:", contents);
+          sendResponse({
+            type: OUT_MESSAGE_TYPES.LIST_BUCKET_CONTENTS_RESPONSE,
+            contents: contents,
+          });
+        })
+        .catch((error) => {
+          console.error("Error listing bucket contents:", error);
+          sendResponse({
+            type: OUT_MESSAGE_TYPES.LIST_BUCKET_CONTENTS_ERROR,
+            error: error.message,
+          });
+        });
+      return true;
+
+    case IN_MESSAGE_TYPES.LIST_ALL_BUCKET_CONTENTS:
+      listAllBucketContents(message.bucketName, message.bucketRegion)
+        .then((contents) => {
+          sendResponse({ contents });
+        })
+        .catch((error) => {
+          sendResponse({ error: error.message });
+        });
+      return true;
+
+    case IN_MESSAGE_TYPES.LOAD_INDEX:
+      void requestBucketIndices(message.bucketNames);
+      sendResponse({ ok: true });
+      return true;
+
+    case IN_MESSAGE_TYPES.GET_BUCKET_SEARCH_RESULT:
+      getBucketSearchResult(message.bucketName, message.id).then((item) => {
+        sendResponse({ item: item || null });
+      });
+      return true;
+
+    case IN_MESSAGE_TYPES.START_INDEX_BUCKET:
+      void startIndexBucket({
+        name: message.bucketName,
+        location: message.bucketRegion,
+      });
+      return true;
+
+    case IN_MESSAGE_TYPES.STOP_INDEX_BUCKET:
+      stopIndexBucket(message.indexingProcess);
+      return true;
   }
-);
+});
 
-async function getCredentials() {
+async function getCredentials(): Promise<null | {
+  accessKeyId: string;
+  secretAccessKey: string;
+}> {
   const result = await browser.storage.local.get("awsCredentials");
-  return result.awsCredentials;
+  return result.awsCredentials as {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
 }
 
 async function listEc2Instances(
   region: string,
-  instanceStateFilter: string[]
+  instanceStateFilter: string[],
 ): Promise<Ec2Instance[]> {
   const credentials = await getCredentials();
   if (!credentials) {
@@ -184,14 +191,14 @@ async function listBuckets(): Promise<BucketInfo[]> {
       } catch (error) {
         console.error(
           `Error getting location for bucket ${bucket.Name}:`,
-          error
+          error,
         );
         return {
           name: bucket.Name!,
           location: "Unknown",
         };
       }
-    })
+    }),
   );
 
   const store = await getBucketsIndexStore();
@@ -211,7 +218,7 @@ async function listBuckets(): Promise<BucketInfo[]> {
 async function listBucketContents(
   bucketName: string,
   bucketRegion: string,
-  prefix: string = ""
+  prefix: string = "",
 ): Promise<BucketItem[]> {
   const credentials = await getCredentials();
   if (!credentials) {
@@ -250,7 +257,7 @@ async function listBucketContents(
 
 async function listAllBucketContents(
   bucketName: string,
-  bucketRegion: string
+  bucketRegion: string,
 ): Promise<BucketItem[]> {
   const credentials = await getCredentials();
   if (!credentials) {
@@ -276,7 +283,7 @@ async function listAllBucketContents(
       const response = await regionSpecificS3Client.send(command);
       if (response.Contents) {
         contents = contents.concat(
-          response.Contents.map((item) => toBucketItem(bucketName, item))
+          response.Contents.map((item) => toBucketItem(bucketName, item)),
         );
       }
       console.log("listAllBucketContents: ", contents);
@@ -306,7 +313,7 @@ idbPromise().then(() => {
   console.log("IDB READY!");
 });
 
-let contentScriptPorts: browser.runtime.Port[] = [];
+let contentScriptPorts: browser.Runtime.Port[] = [];
 
 // Listen for connection attempts from content scripts
 browser.runtime.onConnect.addListener((port) => {
@@ -418,7 +425,7 @@ async function startIndexBucket(bucket: BucketInfo) {
         }
         console.log(
           "Bucket index progress, num docs = ",
-          indexingProcesses[bucket.name].documentCount
+          indexingProcesses[bucket.name].documentCount,
         );
         notifyAwsComWeb({
           type: NOTIFY_MESSAGE_TYPES.INDEXING_PROGRESS,
@@ -469,7 +476,7 @@ async function getBucketSearchResult(bucketName: string, id: number) {
 function toBucketItem(
   bucket: string,
   item: NonNullable<ListObjectsV2Output["Contents"]>[0],
-  syncTimestamp?: number
+  syncTimestamp?: number,
 ): BucketItem {
   return {
     bucket: bucket,

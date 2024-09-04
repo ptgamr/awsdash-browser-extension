@@ -10,8 +10,11 @@ else
     SED_INPLACE := sed -i
 endif
 
-build: build-chrome build-firefox
-
+build:
+	@npm run build:all
+	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/chrome/manifest.json
+	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/firefox/manifest.json
+	
 build-chrome:
 	@npm run build:chrome
 	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/chrome/manifest.json
