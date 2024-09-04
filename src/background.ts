@@ -68,7 +68,7 @@ browser.runtime.onMessage.addListener((rawMessage, _sender, sendResponse) => {
       listBucketContents(
         message.bucketName,
         message.bucketRegion,
-        message.prefix,
+        message.prefix
       )
         .then((contents) => {
           console.log("Bucket contents listed:", contents);
@@ -98,7 +98,7 @@ browser.runtime.onMessage.addListener((rawMessage, _sender, sendResponse) => {
 
     case IN_MESSAGE_TYPES.LOAD_INDEX:
       void requestBucketIndices(message.bucketNames);
-      sendResponse({ ok: true });
+      sendResponse({ ack: true });
       return true;
 
     case IN_MESSAGE_TYPES.GET_BUCKET_SEARCH_RESULT:
@@ -112,10 +112,12 @@ browser.runtime.onMessage.addListener((rawMessage, _sender, sendResponse) => {
         name: message.bucketName,
         location: message.bucketRegion,
       });
+      sendResponse({ ack: true });
       return true;
 
     case IN_MESSAGE_TYPES.STOP_INDEX_BUCKET:
       stopIndexBucket(message.indexingProcess);
+      sendResponse({ ack: true });
       return true;
   }
 });
@@ -133,7 +135,7 @@ async function getCredentials(): Promise<null | {
 
 async function listEc2Instances(
   region: string,
-  instanceStateFilter: string[],
+  instanceStateFilter: string[]
 ): Promise<Ec2Instance[]> {
   const credentials = await getCredentials();
   if (!credentials) {
@@ -191,14 +193,14 @@ async function listBuckets(): Promise<BucketInfo[]> {
       } catch (error) {
         console.error(
           `Error getting location for bucket ${bucket.Name}:`,
-          error,
+          error
         );
         return {
           name: bucket.Name!,
           location: "Unknown",
         };
       }
-    }),
+    })
   );
 
   const store = await getBucketsIndexStore();
@@ -218,7 +220,7 @@ async function listBuckets(): Promise<BucketInfo[]> {
 async function listBucketContents(
   bucketName: string,
   bucketRegion: string,
-  prefix: string = "",
+  prefix: string = ""
 ): Promise<BucketItem[]> {
   const credentials = await getCredentials();
   if (!credentials) {
@@ -257,7 +259,7 @@ async function listBucketContents(
 
 async function listAllBucketContents(
   bucketName: string,
-  bucketRegion: string,
+  bucketRegion: string
 ): Promise<BucketItem[]> {
   const credentials = await getCredentials();
   if (!credentials) {
@@ -283,7 +285,7 @@ async function listAllBucketContents(
       const response = await regionSpecificS3Client.send(command);
       if (response.Contents) {
         contents = contents.concat(
-          response.Contents.map((item) => toBucketItem(bucketName, item)),
+          response.Contents.map((item) => toBucketItem(bucketName, item))
         );
       }
       console.log("listAllBucketContents: ", contents);
@@ -425,7 +427,7 @@ async function startIndexBucket(bucket: BucketInfo) {
         }
         console.log(
           "Bucket index progress, num docs = ",
-          indexingProcesses[bucket.name].documentCount,
+          indexingProcesses[bucket.name].documentCount
         );
         notifyAwsComWeb({
           type: NOTIFY_MESSAGE_TYPES.INDEXING_PROGRESS,
@@ -476,7 +478,7 @@ async function getBucketSearchResult(bucketName: string, id: number) {
 function toBucketItem(
   bucket: string,
   item: NonNullable<ListObjectsV2Output["Contents"]>[0],
-  syncTimestamp?: number,
+  syncTimestamp?: number
 ): BucketItem {
   return {
     bucket: bucket,
