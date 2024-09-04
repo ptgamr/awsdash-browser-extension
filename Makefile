@@ -1,6 +1,6 @@
 .PHONY: build build-chrome build-firefox chrome firefox
 
-VERSION := 1.0.5
+VERSION := 1.0.6
 
 # Detect OS for sed command
 UNAME_S := $(shell uname -s)
@@ -9,11 +9,6 @@ ifeq ($(UNAME_S),Darwin)
 else
     SED_INPLACE := sed -i
 endif
-
-build:
-	@npm run build:all
-	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/chrome/manifest.json
-	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/firefox/manifest.json
 	
 build-chrome:
 	@npm run build:chrome
@@ -25,8 +20,17 @@ build-firefox:
 
 chrome: build-chrome
 	@DATETIME=$(shell date +%Y%m%d%H%M%S) && \
-	(cd dist/chrome && zip -r ../../awsdash-browser-extension-$(VERSION)-$$DATETIME.zip .)
+	(cd dist/chrome && zip -r ../../awsdash-chrome-extension-$(VERSION)-$$DATETIME.zip .)
 
 firefox: build-firefox
 	@DATETIME=$(shell date +%Y%m%d%H%M%S) && \
 	(cd dist/firefox && zip -r ../../awsdash-firefox-extension-$(VERSION)-$$DATETIME.zip .)
+
+build:
+	@npm run build:all
+	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/chrome/manifest.json
+	@$(SED_INPLACE) 's/"version": ".*"/"version": "$(VERSION)"/' dist/firefox/manifest.json
+
+release: build
+	@(cd dist/chrome && zip -r ../../awsdash-chrome-extension-$(VERSION)-$$DATETIME.zip .)
+	@(cd dist/firefox && zip -r ../../awsdash-firefox-extension-$(VERSION)-$$DATETIME.zip .)
