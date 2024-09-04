@@ -1,4 +1,4 @@
-import { BucketItem } from "../../src/types";
+import { BucketItem } from "./types";
 import { IN_MESSAGE_TYPES, NOTIFY_MESSAGE_TYPES } from "./constants";
 
 export type ExtIncomingActions =

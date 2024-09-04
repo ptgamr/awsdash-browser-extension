@@ -1,3 +1,13 @@
+### How to build the extenion
+
+- OS requirement: Ubuntu 22.04 / Mac Sonoma (M1)
+- Node version: 20.8.1
+
+```
+$ npm install
+$ make firefox
+```
+
 ### In firefox go to:
 
 ```

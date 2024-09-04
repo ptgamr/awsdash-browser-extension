@@ -1,5 +1,5 @@
 import { Reservation } from "@aws-sdk/client-ec2";
-import { Ec2Instance } from "../../src/types";
+import { Ec2Instance } from "./types";
 
 export function parseReservationResponse(
   reservations: Reservation[] | undefined | null

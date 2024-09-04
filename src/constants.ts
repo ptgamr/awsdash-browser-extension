@@ -1,5 +1,5 @@
 import { IndexOptionsForDocumentSearch } from "flexsearch";
-import { BucketItem } from "../../src/types";
+import { BucketItem } from "./types";
 
 export const IN_MESSAGE_TYPES = {
   PING: "PING",

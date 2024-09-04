@@ -1,5 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase, deleteDB } from "idb";
-import { BucketItem } from "../../src/types";
+import { BucketItem } from "./types";
 
 export interface AwsDashDB extends DBSchema {
   bucket_items: {
@@ -28,7 +28,7 @@ class DBWrapper {
         upgrade(db, oldVersion, newVersion) {
           // eslint-disable-next-line no-console
           console.log(
-            `idb open: oldVersion=${oldVersion}, newVersion=${newVersion}`,
+            `idb open: oldVersion=${oldVersion}, newVersion=${newVersion}`
           );
 
           //
@@ -92,7 +92,7 @@ class BucketItemsStore extends BaseStore {
     const items = (await this.db.getAllFromIndex(
       BUCKET_ITEMS,
       "bucket",
-      bucketName,
+      bucketName
     )) as BucketItem[];
     return items;
   }
@@ -120,7 +120,7 @@ class BucketItemsStore extends BaseStore {
     const doc = await this.db.getFromIndex(
       BUCKET_ITEMS,
       "bucketAndKey",
-      bucketAndKey,
+      bucketAndKey
     );
     return doc!;
   }

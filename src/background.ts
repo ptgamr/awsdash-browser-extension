@@ -12,7 +12,7 @@ import {
   OUT_MESSAGE_TYPES,
   NOTIFY_MESSAGE_TYPES,
 } from "./constants";
-import { BucketInfo, BucketItem, Ec2Instance } from "../../src/types";
+import { BucketInfo, BucketItem, Ec2Instance } from "./types";
 import localForage from "localforage";
 import { nanoid } from "nanoid";
 import {
