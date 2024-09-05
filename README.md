@@ -1,6 +1,9 @@
 ### What is this?
 Companion browser extension for https://awsdash.com - A simple alternative UI to manage AWS resources.
 
+
+![AwsDash.com](./public/awsdash-light.svg)
+
 ### How to build the extenion
 
 - OS requirement: Ubuntu 22.04 / Mac Sonoma (M1)
