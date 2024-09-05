@@ -12,6 +12,7 @@ Companion browser extension for https://awsdash.com - A simple alternative UI to
 ```
 $ npm install
 $ make firefox
+$ make chrome
 ```
 
 ### In firefox go to:
