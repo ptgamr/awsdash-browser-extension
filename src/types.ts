@@ -1,5 +1,11 @@
 import { InstanceStateName } from "@aws-sdk/client-ec2";
 
+export interface AWSProfile {
+  name: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+}
+
 export interface Ec2Instance {
   id: string;
   type: string;
@@ -13,11 +19,14 @@ export interface Ec2Instance {
   vpcId: string;
   stateName: InstanceStateName;
   autoscalingGroup: string | null;
+  awsProfile: string;
 }
 
 export interface BucketItem {
   id?: string;
+  awsProfile: string;
   bucket: string;
+  bucketRegion: string;
   key: string;
   type: "folder" | "file";
   syncTimestamp: number;
@@ -36,9 +45,11 @@ export interface SearchResults {
   totalCount: number;
   results: BucketItem[];
 }
+
 export interface BucketInfo {
   name: string;
   location: string;
   documentCount?: number;
   lastIndexed?: number;
+  awsProfile: string;
 }

@@ -1,6 +1,6 @@
 .PHONY: build build-chrome build-firefox chrome firefox
 
-VERSION := 1.0.6
+VERSION := 1.0.8
 
 # Detect OS for sed command
 UNAME_S := $(shell uname -s)

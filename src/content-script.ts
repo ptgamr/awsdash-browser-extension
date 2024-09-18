@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 
-console.log("Content script loaded");
+console.log("AwsDash - Content script loaded");
 
 const AWSDASHCOM_WEB_URLS = ["http://localhost:5173", "https://awsdash.com"];
 
@@ -29,13 +29,31 @@ function sendMessageToWeb(message: any) {
   }
 }
 
-// Send ready message again after a short delay, in case the page wasn't ready
-setTimeout(() => {
+async function extensionReadyCheck() {
+  const [response, manifest] = await Promise.all([
+    browser.runtime.sendMessage({
+      source: "AWSDASHCOM_EXT",
+      type: "GET_AWS_PROFILES",
+    }),
+    browser.runtime.getManifest(),
+  ]);
+
   sendMessageToWeb({
     source: "AWSDASHCOM_EXT",
     type: "NOTIFICATION",
-    payload: { type: "EXTENSION_READY" },
+    payload: {
+      type: "EXTENSION_READY",
+      profiles: response,
+      version: manifest.version,
+    },
   });
+}
+
+extensionReadyCheck();
+
+// Send ready message again after a short delay, in case the page wasn't ready
+setTimeout(() => {
+  extensionReadyCheck();
 }, 1000);
 
 const port = browser.runtime.connect({
@@ -45,6 +63,7 @@ const port = browser.runtime.connect({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 port.onMessage.addListener((message: any) => {
   if (message.type === "NOTIFICATION") {
+    console.log("content script receive notification", message.payload);
     sendMessageToWeb({
       source: "AWSDASHCOM_EXT",
       type: "NOTIFICATION",

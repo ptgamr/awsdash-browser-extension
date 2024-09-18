@@ -22,8 +22,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.637.0",
+    "@aws-sdk/s3-request-presigner": "^3.651.1",
     "@tanstack/react-query-devtools": "^5.53.1",
     "@types/webextension-polyfill": "^0.12.1",
+    "@vitejs/plugin-react": "^4.3.1",
     "flexsearch": "^0.7.43",
     "idb": "^8.0.0",
     "localforage": "^1.10.0",

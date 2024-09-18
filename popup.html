@@ -10,59 +10,7 @@
     />
   </head>
   <body class="bg-gray-900 text-gray-100 text-lg">
-    <div class="container mx-auto" style="width: 390px">
-      <div class="bg-gray-800 shadow-md p-6">
-        <div class="flex items-center mb-4 text-center">
-          <a href="https://awsdash.com" target="_blank">
-            <img src="/awsdash-dark.svg" alt="AwsDash Logo" class="w-48" />
-          </a>
-        </div>
-        <p class="mb-4">
-          <a
-            href="https://awsdash.com"
-            target="_blank"
-            class="text-blue-400 hover:underline"
-            >Visit AWS Dash</a
-          >
-        </p>
-        <div class="hidden">
-          <p class="mb-4">
-            Extension ID:
-            <span id="extension-id" class="font-mono text-gray-300"></span>
-          </p>
-          <button
-            id="copy-button"
-            class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-700 mb-4"
-          >
-            Copy Extension ID
-          </button>
-        </div>
-
-        <!-- AWS Credentials Form -->
-        <div class="mb-4">
-          <label for="aws-key" class="block text-sm font-medium text-gray-300"
-            >AWS Key:</label
-          >
-          <input
-            type="text"
-            id="aws-key"
-            class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-        <div class="mb-4">
-          <label
-            for="aws-secret"
-            class="block text-sm font-medium text-gray-300"
-            >AWS Secret:</label
-          >
-          <input
-            type="password"
-            id="aws-secret"
-            class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      </div>
-    </div>
-    <script type="module" src="/src/popup.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/popup.tsx"></script>
   </body>
 </html>

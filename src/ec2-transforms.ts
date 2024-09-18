@@ -2,7 +2,8 @@ import { Reservation } from "@aws-sdk/client-ec2";
 import { Ec2Instance } from "./types";
 
 export function parseReservationResponse(
-  reservations: Reservation[] | undefined | null
+  reservations: Reservation[] | undefined | null,
+  awsProfile: string
 ): Ec2Instance[] {
   const instanceList = (reservations || []).reduce((prev, current) => {
     return prev.concat(
@@ -24,6 +25,7 @@ export function parseReservationResponse(
             (iter.Tags || []).find(
               (iter) => iter.Key === "aws:autoscaling:groupName"
             )?.Value ?? null,
+          awsProfile: awsProfile,
         };
         return instance;
       })

@@ -20,7 +20,7 @@ const BUCKET_ITEMS = "bucket_items";
 class DBWrapper {
   db: null | IDBPDatabase<AwsDashDB> = null;
   DB_NAME = `AwsDashComS3`;
-  DB_VERSION = 1;
+  DB_VERSION = 2;
 
   async connect() {
     if (!this.db) {
@@ -28,7 +28,7 @@ class DBWrapper {
         upgrade(db, oldVersion, newVersion) {
           // eslint-disable-next-line no-console
           console.log(
-            `idb open: oldVersion=${oldVersion}, newVersion=${newVersion}`
+            `idb open: oldVersion=${oldVersion}, newVersion=${newVersion}`,
           );
 
           //
@@ -42,7 +42,7 @@ class DBWrapper {
 
           /* eslint-disable no-fallthrough */
           switch (oldVersion) {
-            // ts-expect-error (fallthrough)
+            // @ts-expect-error (fallthrough)
             case 0: {
               const store = db.createObjectStore(BUCKET_ITEMS, {
                 keyPath: "id",
@@ -56,8 +56,9 @@ class DBWrapper {
               });
               store.createIndex("syncTimestamp", "syncTimestamp");
             }
-            // case 1: {
-            // }
+
+            case 1: {
+            }
 
             // Future database migration here
             // the last "case" statement should always one version behind the specified DB_VERSION
@@ -92,7 +93,7 @@ class BucketItemsStore extends BaseStore {
     const items = (await this.db.getAllFromIndex(
       BUCKET_ITEMS,
       "bucket",
-      bucketName
+      bucketName,
     )) as BucketItem[];
     return items;
   }
@@ -120,7 +121,7 @@ class BucketItemsStore extends BaseStore {
     const doc = await this.db.getFromIndex(
       BUCKET_ITEMS,
       "bucketAndKey",
-      bucketAndKey
+      bucketAndKey,
     );
     return doc!;
   }
